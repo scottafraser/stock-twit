@@ -24,7 +24,7 @@ export default class List extends Component {
   };
 
   getSymbol = (symbol) => {
-    const url = `https://api.stocktwits.com/api/2/streams/symbol/${symbol}.json`;
+    const url = `/symbol/${symbol}`;
     this.setState({ isLoading: true });
     axios.get(url).then((res) => {
       const tweets = res.data.messages;
@@ -34,7 +34,7 @@ export default class List extends Component {
   };
 
   getTrending = () => {
-    const url = `https://api.stocktwits.com/api/2/streams/trending.json`;
+    const url = `/trending`;
     this.setState({ isLoading: true });
     axios.get(url).then((res) => {
       const tweets = res.data.messages;

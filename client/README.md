@@ -1,11 +1,8 @@
-# Stocktwit React Dashboard
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-An example project built with React, Material UI, Yarn, Node
+## Available Scripts
 
-Dependencies:
-
-- Moment
-- Axios
+In the project directory, you can run:
 
 ### `yarn start`
 
