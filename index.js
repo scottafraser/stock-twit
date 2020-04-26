@@ -52,5 +52,5 @@ app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
-app.listen(8080);
-console.log("Server running at 8080");
+var port_number = server.listen(process.env.PORT || 8080);
+app.listen(port_number);
