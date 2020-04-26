@@ -49,7 +49,7 @@ export default class List extends Component {
 
   tweetCall = (s) => {
     const max = this.state.cursor.max ? this.state.cursor.max : 0; //
-    const url = `http://localhost:8080/symbol/${s}/count/${max}`;
+    const url = `/symbol/${s}/count/${max}`;
     axios.get(url).then((res) => {
       if (res.data.messages) {
         this.handleSymbolList(res.data.symbol);
@@ -62,7 +62,17 @@ export default class List extends Component {
     });
   };
 
-  getManyTweets = () => {
+  getTweets = () => {
+    let list = this.state.symbolArray;
+    if (list.length > 0) {
+      this.getManySymbols();
+    } else {
+      this.tweetCall(this.state.input);
+    }
+    this.setState({ isLoading: false });
+  };
+
+  getManySymbols = () => {
     this.tweetCall(this.state.input);
     const maxList = [];
     this.state.symbolArray.forEach((s) => {
@@ -70,16 +80,6 @@ export default class List extends Component {
         maxList.push(this.tweetCall(s.symbol));
       }
     });
-  };
-
-  getTweets = () => {
-    let list = this.state.symbolArray;
-    if (list.length > 0) {
-      this.getManyTweets();
-    } else {
-      this.tweetCall(this.state.input);
-    }
-    this.setState({ isLoading: false });
   };
 
   appendTweets = (newData) => {
