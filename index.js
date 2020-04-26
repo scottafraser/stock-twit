@@ -1,7 +1,6 @@
 require("dotenv").config();
 
 const express = require("express");
-const router = express.Router();
 const bodyParser = require("body-parser");
 const path = require("path");
 const axios = require("axios");
@@ -9,19 +8,6 @@ const axios = require("axios");
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
-//get tweets with matching symbol
-const getSymbol = async (symbol) => {
-  try {
-    let res = await axios.get(
-      `https://api.stocktwits.com/api/2/streams/${symbol}.json`
-    );
-    return res.json;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
 app.use(express.static(path.join(__dirname, "build")));
 
 app.get("/trending", async function (req, res) {
@@ -40,7 +26,6 @@ app.get("/symbol/:id", async function (req, res) {
   await axios
     .get(`https://api.stocktwits.com/api/2/streams/symbol/${id}.json`)
     .then((response) => {
-      console.log(response);
       res.send(response.data);
     })
     .catch((error) => {

@@ -12,22 +12,10 @@ export default class List extends Component {
     tweetCount: 0,
     input: "",
     currentSymbol: null,
+    symbolArray: [],
     isLoading: false,
     noResults: false,
   };
-
-  // componentDidMount() {
-  //   // this.getTrending();
-  // }
-
-  //   componentDidMount() {
-  //   this.interval = setInterval(this.getData, 60000);
-  //   this.getData();
-  // }
-
-  // componentWillUnmount() {
-  //   clearInterval(this.interval);
-  // }
 
   handleChange = (event) => {
     this.setState({ input: event.target.value });
@@ -35,14 +23,30 @@ export default class List extends Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
-    this.getSymbol(this.state.input);
+    this.getTweets(this.state.input);
   };
 
-  getSymbol = (symbol) => {
+  handleSymbolList = () => {
+    const input = this.state.input;
+    if (this.state.symbolArray.length === 0) {
+      this.setState({ symbolArray: [input] });
+    } else if (!this.state.symbolArray.includes(input)) {
+      const newList = this.state.symbolArray.concat(input);
+      this.setState({ symbolArray: newList });
+    }
+  };
+
+  handleDelete = (symbol) => {
+    const deleteArray = this.state.symbolArray.filter((a) => a !== symbol);
+    this.setState({ symbolArray: deleteArray });
+  };
+
+  getTweets = (symbol) => {
     const url = `/symbol/${symbol}`;
     this.setState({ isLoading: true });
     axios.get(url).then((res) => {
       if (res.data.messages) {
+        this.handleSymbolList();
         let count = res.data.messages.length;
         this.setState({
           tweets: res.data.messages,
@@ -106,21 +110,24 @@ export default class List extends Component {
             />
           </form>
           <div>
-            {this.state.currentSymbol && (
-              <Symbols {...this.state.currentSymbol} />
+            {this.state.symbolArray.length > 0 && (
+              <Symbols
+                list={this.state.symbolArray}
+                handleDelete={this.handleDelete}
+              />
             )}
           </div>
         </div>
         {this.state.tweetCount > 0 && (
           <InfiniteScroll
-            dataLength={this.state.tweetCount} //This is important field to render the next data
+            dataLength={this.state.tweetCount}
             next={this.getNext}
             hasMore={true}
             loader={<h4>Loading...</h4>}
           >
             {this.state.tweets.length
               ? this.state.tweets.map((t) => <Message key={t.id} message={t} />)
-              : this.state.noResults && <p>Sorry, no results </p>}
+              : this.state.noResults && <p>Sorry, no results</p>}
           </InfiniteScroll>
         )}
       </div>

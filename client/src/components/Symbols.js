@@ -1,17 +1,31 @@
-import React, { Component } from "react";
-import Container from "@material-ui/core/Container";
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
 import Chip from "@material-ui/core/Chip";
-import Avatar from "@material-ui/core/Avatar";
 
-export default class Symbols extends Component {
-  state = { history: [] };
-  render(props) {
-    return (
-      <Container>
-        {props && (
-          <Chip avatar={<Avatar>{props.symbol}</Avatar>} label={props.title} />
-        )}
-      </Container>
-    );
-  }
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    justifyContent: "left",
+    flexWrap: "wrap",
+    "& > *": {
+      margin: theme.spacing(0.5),
+    },
+    textTransform: "uppercase",
+  },
+}));
+
+export default function Symbols(props) {
+  const classes = useStyles();
+
+  const handleDelete = (s) => {
+    props.handleDelete(s);
+  };
+
+  return (
+    <div className={classes.root}>
+      {props.list.map((s, i) => (
+        <Chip label={s} onDelete={() => handleDelete(s)} key={s + i} />
+      ))}
+    </div>
+  );
 }
