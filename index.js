@@ -52,5 +52,5 @@ app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
-var port_number = server.listen(process.env.PORT || 8080);
+var port_number = app.listen(process.env.PORT || 8080);
 app.listen(port_number);

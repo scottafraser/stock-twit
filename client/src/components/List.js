@@ -49,7 +49,7 @@ export default class List extends Component {
 
   tweetCall = (s) => {
     const max = this.state.cursor.max ? this.state.cursor.max : 0; //
-    const url = `/symbol/${s}/count/${max}`;
+    const url = `http://localhost:8080/symbol/${s}/count/${max}`;
     axios.get(url).then((res) => {
       if (res.data.messages) {
         this.handleSymbolList(res.data.symbol);
