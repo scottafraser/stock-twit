@@ -52,7 +52,7 @@ export default class List extends Component {
     const url = `/symbol/${s}/count/${max}`;
     axios.get(url).then((res) => {
       if (res.data.messages) {
-        this.handleSymbolList(res.data.symbol);
+        // this.handleSymbolList(res.data.symbol);
         this.setState({
           tweets: this.appendTweets(res.data.messages),
           tweetCount: this.state.tweets.length + res.data.messages.length,
@@ -79,7 +79,6 @@ export default class List extends Component {
     } else {
       this.tweetCall(this.state.input);
     }
-    this.setState({ isLoading: false });
   };
 
   appendTweets = (newData) => {
