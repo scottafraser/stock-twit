@@ -33,7 +33,7 @@ app.get("/symbol/:id", async function (req, res) {
     });
 });
 
-app.get("/next/:id/count/:max", async function (req, res) {
+app.get("/symbol/:id/count/:max", async function (req, res) {
   var id = req.params.id;
   var max = req.params.max;
   await axios

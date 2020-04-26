@@ -18,13 +18,17 @@ export default function Symbols(props) {
   const classes = useStyles();
 
   const handleDelete = (s) => {
-    props.handleDelete(s);
+    props.handleDelete(s.symbol);
   };
 
   return (
     <div className={classes.root}>
       {props.list.map((s, i) => (
-        <Chip label={s} onDelete={() => handleDelete(s)} key={s + i} />
+        <Chip
+          label={s.symbol}
+          onDelete={() => handleDelete(s)}
+          key={s.symbol + i}
+        />
       ))}
     </div>
   );

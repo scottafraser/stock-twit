@@ -9,12 +9,12 @@ import "../App.css";
 export default class List extends Component {
   state = {
     tweets: [],
-    tweetCount: 0,
     input: "",
-    currentSymbol: null,
+    // currentSymbol: null,
     symbolArray: [],
     isLoading: false,
     noResults: false,
+    cursor: {},
   };
 
   handleChange = (event) => {
@@ -26,38 +26,59 @@ export default class List extends Component {
     this.getTweets(this.state.input);
   };
 
-  handleSymbolList = () => {
-    const input = this.state.input;
-    if (this.state.symbolArray.length === 0) {
-      this.setState({ symbolArray: [input] });
-    } else if (!this.state.symbolArray.includes(input)) {
-      const newList = this.state.symbolArray.concat(input);
-      this.setState({ symbolArray: newList });
+  handleSymbolList = (s) => {
+    if (this.state.symbolArray.length == 0) {
+      const array = [s];
+      this.setState({
+        symbolArray: array,
+      });
+    } else {
+      if (!this.state.symbolArray.includes(s)) {
+        const newArray = this.state.symbolArray.concat(s);
+        this.setState({ symbolArray: newArray });
+      }
     }
   };
 
   handleDelete = (symbol) => {
-    const deleteArray = this.state.symbolArray.filter((a) => a !== symbol);
+    const deleteArray = this.state.symbolArray.filter(
+      (a) => a.symbol !== symbol
+    );
     this.setState({ symbolArray: deleteArray });
   };
 
-  getTweets = (symbol) => {
-    const url = `/symbol/${symbol}`;
-    this.setState({ isLoading: true });
+  tweetCall = (s) => {
+    const max = this.state.cursor.max ? this.state.cursor.max : 0; //
+    const url = `/symbol/${s}/count/${max}`;
     axios.get(url).then((res) => {
       if (res.data.messages) {
-        this.handleSymbolList();
-        let count = res.data.messages.length;
+        this.handleSymbolList(res.data.symbol);
         this.setState({
-          tweets: res.data.messages,
-          tweetCount: count,
-          currentSymbol: res.data.symbol,
+          tweets: this.appendTweets(res.data.messages),
+          tweetCount: this.state.tweets.length + res.data.messages.length,
           cursor: res.data.cursor,
         });
-      } else {
-        this.setState({ noResults: true });
       }
     });
+  };
+
+  getManyTweets = () => {
+    this.tweetCall(this.state.input);
+    const maxList = [];
+    this.state.symbolArray.forEach((s) => {
+      if (!this.state.symbolArray.includes(s)) {
+        maxList.push(this.tweetCall(s.symbol));
+      }
+    });
+  };
+
+  getTweets = () => {
+    let list = this.state.symbolArray;
+    if (list.length > 0) {
+      this.getManyTweets();
+    } else {
+      this.tweetCall(this.state.input);
+    }
     this.setState({ isLoading: false });
   };
 
@@ -68,30 +89,53 @@ export default class List extends Component {
     return allTweets;
   };
 
-  getNext = () => {
-    if (this.state.currentSymbol) {
-      const url = `/next/${this.state.currentSymbol.symbol}/count/${this.state.cursor.max}/`;
-      this.setState({ isLoading: true });
-      axios.get(url).then((res) => {
-        this.setState({
-          tweets: this.appendTweets(res.data.messages),
-          tweetCount: this.state.tweetCount,
-          cursor: res.data.cursor,
-        });
-      });
-      this.setState({ isLoading: false });
-    }
+  // these are not tested
+  cleanTweets = () => {
+    let sortList = [...new Set(this.state.tweets)];
+    sortList.sort((a, b) => {
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
+    this.setState({ tweets: sortList });
+    this.countTweets();
   };
 
-  getTrending = () => {
-    const url = `/trending`;
-    this.setState({ isLoading: true });
-    axios.get(url).then((res) => {
-      const tweets = res.data.messages;
-      this.setState({ tweets });
+  // these are not tested
+  countTweets = () => {
+    var countArray = this.state.symbolArray;
+    this.state.tweets.map((t) => {
+      countArray = countArray.map((s) => {
+        console.log(t, s);
+        if (t.symbols.includes(s)) {
+          s.count = s.count++;
+        }
+      });
+      this.setState({ symbolArray: countArray });
     });
-    this.setState({ isLoading: false });
   };
+  // getNext = () => {
+  //   if (this.state.symboArray) {
+  //     const url = `/next/${this.state.currentSymbol.symbol}/count/${this.state.cursor.max}/`;
+  //     this.setState({ isLoading: true });
+  //     axios.get(url).then((res) => {
+  //       this.setState({
+  //         tweets: this.appendTweets(res.data.messages),
+  //         tweetCount: this.state.tweetCount,
+  //         cursor: res.data.cursor,
+  //       });
+  //     });
+  //     this.setState({ isLoading: false });
+  //   }
+  // };
+
+  // getTrending = () => {
+  //   const url = `/trending`;
+  //   this.setState({ isLoading: true });
+  //   axios.get(url).then((res) => {
+  //     const tweets = res.data.messages;
+  //     this.setState({ tweets });
+  //   });
+  //   this.setState({ isLoading: false });
+  // };
 
   render() {
     return (
@@ -121,7 +165,7 @@ export default class List extends Component {
         {this.state.tweetCount > 0 && (
           <InfiniteScroll
             dataLength={this.state.tweetCount}
-            next={this.getNext}
+            next={this.getTweets()}
             hasMore={true}
             loader={<h4>Loading...</h4>}
           >
