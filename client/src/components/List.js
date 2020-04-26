@@ -62,17 +62,7 @@ export default class List extends Component {
     });
   };
 
-  getTweets = () => {
-    let list = this.state.symbolArray;
-    if (list.length > 0) {
-      this.getManySymbols();
-    } else {
-      this.tweetCall(this.state.input);
-    }
-    this.setState({ isLoading: false });
-  };
-
-  getManySymbols = () => {
+  getManyTweets = () => {
     this.tweetCall(this.state.input);
     const maxList = [];
     this.state.symbolArray.forEach((s) => {
@@ -80,6 +70,16 @@ export default class List extends Component {
         maxList.push(this.tweetCall(s.symbol));
       }
     });
+  };
+
+  getTweets = () => {
+    let list = this.state.symbolArray;
+    if (list.length > 0) {
+      this.getManyTweets();
+    } else {
+      this.tweetCall(this.state.input);
+    }
+    this.setState({ isLoading: false });
   };
 
   appendTweets = (newData) => {
