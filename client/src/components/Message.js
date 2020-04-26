@@ -21,8 +21,7 @@ const useStyles = makeStyles({
 
 export default function SimpleCard({ message }) {
   const classes = useStyles();
-  const now = moment();
-  const time = now.format("h:mm:ss a, MMM Do YY");
+  const time = moment(message.created_at).format("h:mm a, MMM Do YY");
 
   return (
     <Card className={classes.root}>

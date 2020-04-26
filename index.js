@@ -40,6 +40,22 @@ app.get("/symbol/:id", async function (req, res) {
   await axios
     .get(`https://api.stocktwits.com/api/2/streams/symbol/${id}.json`)
     .then((response) => {
+      console.log(response);
+      res.send(response.data);
+    })
+    .catch((error) => {
+      res.send({ error: error });
+    });
+});
+
+app.get("/next/:id/count/:max", async function (req, res) {
+  var id = req.params.id;
+  var max = req.params.max;
+  await axios
+    .get(
+      `https://api.stocktwits.com/api/2/streams/symbol/${id}.json?max=${max}`
+    )
+    .then((response) => {
       res.send(response.data);
     })
     .catch((error) => {
