@@ -38,13 +38,11 @@ app.get("/trending", async function (req, res) {
 app.get("/symbol/:id", async function (req, res) {
   var id = req.params.id;
   await axios
-    .get(`https://api.stocktwits.com/api/2/streams/${id}.json`)
+    .get(`https://api.stocktwits.com/api/2/streams/symbol/${id}.json`)
     .then((response) => {
-      console.log(response);
       res.send(response.data);
     })
     .catch((error) => {
-      console.log(error);
       res.send({ error: error });
     });
 });
