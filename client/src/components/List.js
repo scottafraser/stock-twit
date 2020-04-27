@@ -11,37 +11,47 @@ export default class List extends Component {
     tweets: [],
     input: "",
     symbolArray: [],
+    verifiedSymbolList: [],
+    countArray: [],
     isLoading: false,
     noResults: false,
     cursor: {},
+  };
+
+  // componentDidMount() {
+  //   this.setState({ verifiedSymbolList: [] });
+  // }
+
+  componentDidUpdate() {
+    let verified = this.state.verifiedSymbolList;
+    let symbols = this.state.symbolArray;
+    if (symbols.length !== verified.length) {
+      this.setState({ symbolArray: this.cleanArray(verified, "symbol") });
+    }
+    this.cleanTweets();
+  }
+
+  cleanArray = (arr, comp) => {
+    arr.reduce((acc, current) => {
+      const x = acc.find((item) => item[comp] === current[comp]);
+      if (!x) {
+        return acc.concat([current]);
+      } else {
+        return acc;
+      }
+    }, []);
+    return arr;
   };
 
   handleChange = (event) => {
     this.setState({ input: event.target.value });
   };
 
-  checkSearched = (s) => {
-    console.log(s);
-    console.log(this.state.symbolArray);
-    return this.state.symbolArray.includes(s);
-  };
-
   handleSubmit = (event) => {
     event.preventDefault();
-    this.getTweets(this.state.input);
-  };
-
-  handleSymbolList = (s) => {
-    if (this.state.symbolArray.length === 0) {
-      const array = [s];
-      this.setState({
-        symbolArray: array,
-      });
-    } else if (!this.checkSearched(s)) {
-      console.log("here");
-      const newArray = this.state.symbolArray.concat(s);
-      this.setState({ symbolArray: newArray });
-    }
+    this.setState({ isLoading: true, tweets: [], verifiedSymbolList: [] });
+    const cleanInput = this.state.input.trim().replace(/( )?:( )?/g, "");
+    this.getTweets(cleanInput);
   };
 
   handleDelete = (symbol) => {
@@ -51,12 +61,28 @@ export default class List extends Component {
     this.setState({ symbolArray: deleteArray });
   };
 
-  tweetCall = (s) => {
+  tweetCall = async (s) => {
     const max = this.state.cursor.max ? this.state.cursor.max : 0;
     const url = `/symbol/${s}/count/${max}`;
     axios.get(url).then((res) => {
       if (res.data.messages) {
-        this.handleSymbolList(res.data.symbol);
+        this.setState({
+          tweets: this.appendTweets(res.data.messages),
+          tweetCount: this.state.tweets.length + res.data.messages.length,
+          cursor: res.data.cursor,
+          verifiedSymbolList: this.state.verifiedSymbolList.concat(
+            res.data.symbol
+          ),
+        });
+      }
+    });
+  };
+
+  nextTweetCall = async (s) => {
+    const max = this.state.cursor.max ? this.state.cursor.max : 0;
+    const url = `/symbol/${s}/count/${max}`;
+    axios.get(url).then((res) => {
+      if (res.data.messages) {
         this.setState({
           tweets: this.appendTweets(res.data.messages),
           tweetCount: this.state.tweets.length + res.data.messages.length,
@@ -66,23 +92,28 @@ export default class List extends Component {
     });
   };
 
-  getManyTweets = () => {
-    this.tweetCall(this.state.input);
+  getNextTweets = async () => {
     const maxList = [];
     this.state.symbolArray.forEach((s) => {
-      if (!this.state.symbolArray.includes(s)) {
-        maxList.push(this.tweetCall(s.symbol));
-      }
+      maxList.push(this.nextTweetCall(s.symbol));
     });
   };
 
-  getTweets = () => {
+  getTweets = async () => {
+    debugger;
     let list = this.state.symbolArray;
-    if (list.length > 0) {
-      this.getManyTweets();
-    } else {
+    let input = this.state.input;
+    const searched = list.some((el) => el.symbol === input.toUpperCase());
+    if (!searched) {
       this.tweetCall(this.state.input);
     }
+    if (list.length > 0) {
+      this.getNextTweets();
+    }
+  };
+
+  getNext = () => {
+    this.getTweetsFromSymbolList();
   };
 
   appendTweets = (newData) => {
@@ -93,28 +124,28 @@ export default class List extends Component {
   };
 
   // these are not tested
-  // cleanTweets = () => {
-  //   let sortList = [...new Set(this.state.tweets)];
-  //   sortList.sort((a, b) => {
-  //     return new Date(b.created_at) - new Date(a.created_at);
-  //   });
-  //   this.setState({ tweets: sortList });
-  //   this.countTweets();
-  // };
+  cleanTweets = () => {
+    let sortList = this.cleanArray(this.state.tweets, "id");
+    sortList.sort((a, b) => {
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
+    this.setState({ tweets: sortList });
+    this.countTweets();
+  };
 
   // these are not tested
-  // countTweets = () => {
-  //   var countArray = this.state.symbolArray;
-  //   this.state.tweets.map((t) => {
-  //     countArray = countArray.map((s) => {
-  //       console.log(t, s);
-  //       if (t.symbols.includes(s)) {
-  //         s.count = s.count++;
-  //       }
-  //   });
-  //     this.setState({ symbolArray: countArray });
-  //   });
-  // };
+  countTweets = () => {
+    var countArray = this.state.symbolArray;
+    this.state.tweets.map((t) => {
+      countArray = countArray.map((s) => {
+        console.log(t, s);
+        if (t.symbols.includes(s)) {
+          s.count = s.count++;
+        }
+      });
+      this.setState({ countArray: countArray });
+    });
+  };
 
   // getTrending = () => {
   //   const url = `/trending`;
@@ -154,7 +185,7 @@ export default class List extends Component {
         {this.state.tweetCount > 0 && (
           <InfiniteScroll
             dataLength={this.state.tweetCount}
-            // next={() => this.getTweets()}
+            next={() => this.getTweets()}
             hasMore={true}
             loader={<h4>Loading...</h4>}
           >
