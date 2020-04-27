@@ -10,7 +10,6 @@ export default class List extends Component {
   state = {
     tweets: [],
     input: "",
-    // currentSymbol: null,
     symbolArray: [],
     isLoading: false,
     noResults: false,
@@ -21,24 +20,27 @@ export default class List extends Component {
     this.setState({ input: event.target.value });
   };
 
+  checkSearched = (s) => {
+    console.log(s);
+    console.log(this.state.symbolArray);
+    return this.state.symbolArray.includes(s);
+  };
+
   handleSubmit = (event) => {
     event.preventDefault();
     this.getTweets(this.state.input);
   };
 
   handleSymbolList = (s) => {
-    // console.log(this.state.symbolArray.length);
     if (this.state.symbolArray.length === 0) {
       const array = [s];
       this.setState({
         symbolArray: array,
       });
-    } else {
-      console.log(!this.state.symbolArray.includes(s));
-      if (!this.state.symbolArray.includes(s)) {
-        const newArray = this.state.symbolArray.concat(s);
-        this.setState({ symbolArray: newArray });
-      }
+    } else if (!this.checkSearched(s)) {
+      console.log("here");
+      const newArray = this.state.symbolArray.concat(s);
+      this.setState({ symbolArray: newArray });
     }
   };
 
@@ -50,7 +52,7 @@ export default class List extends Component {
   };
 
   tweetCall = (s) => {
-    const max = this.state.cursor.max ? this.state.cursor.max : 0; //
+    const max = this.state.cursor.max ? this.state.cursor.max : 0;
     const url = `/symbol/${s}/count/${max}`;
     axios.get(url).then((res) => {
       if (res.data.messages) {
@@ -77,7 +79,6 @@ export default class List extends Component {
   getTweets = () => {
     let list = this.state.symbolArray;
     if (list.length > 0) {
-      console.log("get many");
       this.getManyTweets();
     } else {
       this.tweetCall(this.state.input);
@@ -92,41 +93,27 @@ export default class List extends Component {
   };
 
   // these are not tested
-  cleanTweets = () => {
-    let sortList = [...new Set(this.state.tweets)];
-    sortList.sort((a, b) => {
-      return new Date(b.created_at) - new Date(a.created_at);
-    });
-    this.setState({ tweets: sortList });
-    this.countTweets();
-  };
+  // cleanTweets = () => {
+  //   let sortList = [...new Set(this.state.tweets)];
+  //   sortList.sort((a, b) => {
+  //     return new Date(b.created_at) - new Date(a.created_at);
+  //   });
+  //   this.setState({ tweets: sortList });
+  //   this.countTweets();
+  // };
 
   // these are not tested
-  countTweets = () => {
-    var countArray = this.state.symbolArray;
-    this.state.tweets.map((t) => {
-      countArray = countArray.map((s) => {
-        console.log(t, s);
-        if (t.symbols.includes(s)) {
-          s.count = s.count++;
-        }
-      });
-      this.setState({ symbolArray: countArray });
-    });
-  };
-  // getNext = () => {
-  //   if (this.state.symboArray) {
-  //     const url = `/next/${this.state.currentSymbol.symbol}/count/${this.state.cursor.max}/`;
-  //     this.setState({ isLoading: true });
-  //     axios.get(url).then((res) => {
-  //       this.setState({
-  //         tweets: this.appendTweets(res.data.messages),
-  //         tweetCount: this.state.tweetCount,
-  //         cursor: res.data.cursor,
-  //       });
-  //     });
-  //     this.setState({ isLoading: false });
-  //   }
+  // countTweets = () => {
+  //   var countArray = this.state.symbolArray;
+  //   this.state.tweets.map((t) => {
+  //     countArray = countArray.map((s) => {
+  //       console.log(t, s);
+  //       if (t.symbols.includes(s)) {
+  //         s.count = s.count++;
+  //       }
+  //   });
+  //     this.setState({ symbolArray: countArray });
+  //   });
   // };
 
   // getTrending = () => {
@@ -167,7 +154,7 @@ export default class List extends Component {
         {this.state.tweetCount > 0 && (
           <InfiniteScroll
             dataLength={this.state.tweetCount}
-            next={() => this.getTweets()}
+            // next={() => this.getTweets()}
             hasMore={true}
             loader={<h4>Loading...</h4>}
           >
