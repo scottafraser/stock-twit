@@ -21,6 +21,10 @@ app.get("/trending", async function (req, res) {
     });
 });
 
+app.get("/ping", function (req, res) {
+  res.send("hello");
+});
+
 app.get("/symbol/:id", async function (req, res) {
   var id = req.params.id;
   await axios

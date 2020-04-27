@@ -27,12 +27,14 @@ export default class List extends Component {
   };
 
   handleSymbolList = (s) => {
-    if (this.state.symbolArray.length == 0) {
+    // console.log(this.state.symbolArray.length);
+    if (this.state.symbolArray.length === 0) {
       const array = [s];
       this.setState({
         symbolArray: array,
       });
     } else {
+      console.log(!this.state.symbolArray.includes(s));
       if (!this.state.symbolArray.includes(s)) {
         const newArray = this.state.symbolArray.concat(s);
         this.setState({ symbolArray: newArray });
@@ -52,7 +54,7 @@ export default class List extends Component {
     const url = `/symbol/${s}/count/${max}`;
     axios.get(url).then((res) => {
       if (res.data.messages) {
-        // this.handleSymbolList(res.data.symbol);
+        this.handleSymbolList(res.data.symbol);
         this.setState({
           tweets: this.appendTweets(res.data.messages),
           tweetCount: this.state.tweets.length + res.data.messages.length,
@@ -75,6 +77,7 @@ export default class List extends Component {
   getTweets = () => {
     let list = this.state.symbolArray;
     if (list.length > 0) {
+      console.log("get many");
       this.getManyTweets();
     } else {
       this.tweetCall(this.state.input);
@@ -164,7 +167,7 @@ export default class List extends Component {
         {this.state.tweetCount > 0 && (
           <InfiniteScroll
             dataLength={this.state.tweetCount}
-            next={this.getTweets()}
+            next={() => this.getTweets()}
             hasMore={true}
             loader={<h4>Loading...</h4>}
           >
