@@ -30,7 +30,7 @@ export default function SimpleCard({ message }) {
     var new_exp_match = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
     var new_content = element_content.replace(
       new_exp_match,
-      '$1<a target="_blank" href="http://$2">$2</a>'
+      '$1<a target="blank_" href="http://$2">$2</a>'
     );
     return new_content;
   };

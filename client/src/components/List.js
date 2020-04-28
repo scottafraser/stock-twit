@@ -161,10 +161,15 @@ export default class List extends Component {
   getTrending = () => {
     const url = `/trending`;
     this.setState({ isLoading: true });
-    axios.get(url).then((res) => {
-      const tweets = this.appendTweets(res.data.messages);
-      this.setState({ tweets: tweets });
-    });
+    axios
+      .get(url)
+      .then((res) => {
+        const tweets = this.appendTweets(res.data.messages);
+        this.setState({ tweets: tweets });
+      })
+      .then(() => {
+        this.cleanTweets();
+      });
   };
 
   render() {
@@ -187,9 +192,7 @@ export default class List extends Component {
           </div>
         </div>
         {this.state.tweets.length ? (
-          this.state.tweets.map((t, i) => (
-            <Message key={t.id + i} message={t} />
-          ))
+          this.state.tweets.map((t, i) => <Message key={t.id} message={t} />)
         ) : this.state.isLoading ? (
           <Spinner />
         ) : (
