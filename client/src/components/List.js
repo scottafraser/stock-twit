@@ -54,7 +54,7 @@ export default class List extends Component {
     this.getTweets();
     setTimeout(() => {
       this.setState({ isLoading: false });
-    }, 2000);
+    }, 4000);
   };
 
   handleDelete = (e, s) => {
