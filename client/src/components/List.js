@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import axios from "axios";
 import Message from "./Message";
-import Input from "@material-ui/core/Input";
 import Symbols from "./Symbols";
-import "../App.css";
+import Spinner from "./Spinner";
+import SearchInput from "./SearchInput";
+import Typography from "@material-ui/core/Typography";
 
 export default class List extends Component {
   state = {
@@ -44,13 +45,16 @@ export default class List extends Component {
 
   handleChange = (event) => {
     let value = event.target.value;
-    this.setState({ input: value.replace(/( )?:( )?/g, "") });
+    this.setState({ input: value.replace(/[^\w\s]/gi, "") });
   };
 
   handleSubmit = (event) => {
     event.preventDefault();
-    // this.setState({ tweets: [], tweetCount: 0 });
+    this.setState({ isLoading: true });
     this.getTweets();
+    setTimeout(() => {
+      this.setState({ isLoading: false });
+    }, 2000);
   };
 
   handleDelete = (e, s) => {
@@ -87,6 +91,7 @@ export default class List extends Component {
   };
 
   nextTweetCall = async (s) => {
+    // max is for pagination later on
     const max = 0;
     const url = `/symbol/${s}/count/${max}`;
     axios
@@ -150,6 +155,7 @@ export default class List extends Component {
       return s.symbol;
     });
     this.setState({ countList: justSymbol });
+    this.setState({ isLoading: false });
   };
 
   getTrending = () => {
@@ -165,19 +171,12 @@ export default class List extends Component {
     return (
       <div>
         <div className="search-field">
-          <form
-            style={{ paddingBottom: "1em" }}
-            onSubmit={(e) => this.handleSubmit(e)}
-            value={this.state.input}
-          >
-            <Input
-              placeholder="Stock Symbol"
-              type="text"
-              name="symbols"
-              onChange={this.handleChange}
-            />
-          </form>
-          <div>
+          <SearchInput
+            handleSubmit={this.handleSubmit}
+            input={this.state.input}
+            handleChange={this.handleChange}
+          />
+          <div style={{ paddingBottom: "1em" }}>
             {this.state.symbolArray.length > 0 && (
               <Symbols
                 list={this.state.symbolArray}
@@ -187,10 +186,17 @@ export default class List extends Component {
             )}
           </div>
         </div>
-        {this.state.tweetCount > 0 &&
-          (this.state.tweets.length
-            ? this.state.tweets.map((t) => <Message key={t.id} message={t} />)
-            : this.state.noResults && <p>Sorry, no results</p>)}
+        {this.state.tweets.length ? (
+          this.state.tweets.map((t, i) => (
+            <Message key={t.id + i} message={t} />
+          ))
+        ) : this.state.isLoading ? (
+          <Spinner />
+        ) : (
+          <Typography variant="h5" gutterBottom style={{ height: "35vh" }}>
+            Sorry, no results
+          </Typography>
+        )}
       </div>
     );
   }
