@@ -21,11 +21,17 @@ export default function Symbols(props) {
     props.handleDelete(s.symbol);
   };
 
+  const countMatch = (s) => {
+    return props.countList.filter(function (x) {
+      return x === s;
+    }).length;
+  };
+
   return (
     <div className={classes.root}>
       {props.list.map((s, i) => (
         <Chip
-          label={s.symbol}
+          label={s.symbol + " " + countMatch(s.symbol)}
           onDelete={() => handleDelete(s)}
           key={s.symbol + i}
         />
