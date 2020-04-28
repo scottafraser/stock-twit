@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import axios from "axios";
-import InfiniteScroll from "react-infinite-scroll-component";
 import Message from "./Message";
 import Input from "@material-ui/core/Input";
 import Symbols from "./Symbols";
