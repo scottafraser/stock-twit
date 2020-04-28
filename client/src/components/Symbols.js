@@ -17,8 +17,8 @@ const useStyles = makeStyles((theme) => ({
 export default function Symbols(props) {
   const classes = useStyles();
 
-  const handleDelete = (s) => {
-    props.handleDelete(s.symbol);
+  const handleDelete = (event, s) => {
+    props.handleDelete(event, s);
   };
 
   const countMatch = (s) => {
@@ -32,7 +32,7 @@ export default function Symbols(props) {
       {props.list.map((s, i) => (
         <Chip
           label={s.symbol + " " + countMatch(s.symbol)}
-          onDelete={() => handleDelete(s)}
+          onDelete={(event) => handleDelete(event, s.symbol)}
           key={s.symbol + i}
         />
       ))}

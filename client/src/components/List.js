@@ -16,12 +16,11 @@ export default class List extends Component {
     countArray: [],
     isLoading: false,
     noResults: false,
-    cursor: {},
   };
 
-  // componentDidMount() {
-  //   this.setState({ verifiedSymbolList: [] });
-  // }
+  componentDidMount() {
+    this.getTrending();
+  }
 
   componentDidUpdate() {
     let verified = this.state.verifiedSymbolList;
@@ -45,22 +44,26 @@ export default class List extends Component {
   };
 
   handleChange = (event) => {
-    this.setState({ input: event.target.value });
+    let value = event.target.value;
+    this.setState({ input: value.replace(/( )?:( )?/g, "") });
   };
 
   handleSubmit = (event) => {
     event.preventDefault();
-    this.setState({ tweets: [], tweetCount: 0 });
-    const cleanInput = this.state.input.trim().replace(/( )?:( )?/g, "");
-    this.getTweets(cleanInput);
+    // this.setState({ tweets: [], tweetCount: 0 });
+    this.getTweets();
   };
 
-  handleDelete = (symbol) => {
-    const deleteArray = this.state.symbolArray.filter(
-      (a) => a.symbol !== symbol
-    );
-    const deleteTweets = this.state.tweets.filter((t) => {});
-    this.setState({ symbolArray: deleteArray });
+  handleDelete = (e, s) => {
+    const deleteArray = this.state.symbolArray.filter((t) => t.symbol !== s);
+    this.setState({
+      verifiedSymbolList: deleteArray,
+      symbolArray: deleteArray,
+      tweets: [],
+    });
+    deleteArray.forEach((s) => {
+      this.nextTweetCall(s.symbol);
+    });
   };
 
   tweetCall = async (s) => {
@@ -102,15 +105,14 @@ export default class List extends Component {
       });
   };
 
-  getNextTweets = async () => {
-    const maxList = [];
+  getNextTweets = () => {
     this.state.symbolArray.forEach((s) => {
-      maxList.push(this.nextTweetCall(s.symbol));
+      this.nextTweetCall(s.symbol);
     });
   };
 
-  getTweets = async () => {
-    // debugger;
+  getTweets = () => {
+    this.setState({ tweets: [], tweetCount: 0 });
     let list = this.state.symbolArray;
     let input = this.state.input;
     const searched = list.some((el) => el.symbol === input.toUpperCase());
@@ -151,15 +153,14 @@ export default class List extends Component {
     this.setState({ countList: justSymbol });
   };
 
-  // getTrending = () => {
-  //   const url = `/trending`;
-  //   this.setState({ isLoading: true });
-  //   axios.get(url).then((res) => {
-  //     const tweets = res.data.messages;
-  //     this.setState({ tweets });
-  //   });
-  //   this.setState({ isLoading: false });
-  // };
+  getTrending = () => {
+    const url = `/trending`;
+    this.setState({ isLoading: true });
+    axios.get(url).then((res) => {
+      const tweets = this.appendTweets(res.data.messages);
+      this.setState({ tweets: tweets });
+    });
+  };
 
   render() {
     return (
