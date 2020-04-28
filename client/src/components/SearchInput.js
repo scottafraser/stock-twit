@@ -6,6 +6,10 @@ import Card from "@material-ui/core/Card";
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
     "& > *": {
       margin: theme.spacing(1),
     },
