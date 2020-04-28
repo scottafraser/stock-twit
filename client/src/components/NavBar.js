@@ -15,7 +15,6 @@ import Zoom from "@material-ui/core/Zoom";
 const useStyles = makeStyles((theme) => ({
   root: {
     position: "fixed",
-    minHeight: "100vh",
     bottom: theme.spacing(2),
     right: theme.spacing(2),
   },
